@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LEE · Calculadora Estratégica</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --mogno:       #A67340;
+  --mogno-mid:   #B8864F;
+  --mogno-light: #C99B6A;
+  --mogno-pale:  #D9B88A;
+  --cream:       #FAF5EE;
+  --cream-mid:   #F2E8D8;
+  --cream-deep:  #E4D0B8;
+  --parchment:   #FDFAF5;
+  --white:       #FEFCF9;
+  --gold:        #A67340;
+  --gold-light:  #C9905A;
+  --green:       #4A7C59;
+  --green-light: #EAF3ED;
+  --orange:      #C45C28;
+  --text:        #3A2510;
+  --text-mid:    #A67340;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--text);min-height:100vh}
+
+/* ── HEADER ── */
+.header{
+  background: linear-gradient(160deg, #F2E8D8 0%, #E8D5BA 40%, #D9C0A0 100%);
+  padding:26px 20px 22px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.header::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 25% 40%,rgba(255,255,255,.25) 0%,transparent 55%),
+             radial-gradient(ellipse at 75% 60%,rgba(166,115,64,.08) 0%,transparent 55%);
+}
+.logo-row{display:flex;align-items:center;justify-content:center;gap:12px;position:relative;margin-bottom:6px}
+.logo-icon{
+  width:38px;height:38px;border:1.5px solid rgba(200,160,130,.5);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--mogno-pale);
+  letter-spacing:-1px;
+}
+.header-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px;font-weight:700;color:#A67340;letter-spacing:4px;
+  text-shadow: none;
+}
+.header-sub{
+  font-family:'Cormorant Garamond',serif;
+  font-size:13px;font-weight:300;color:#B8864F;
+  letter-spacing:4px;text-transform:uppercase;position:relative;
+}
+.header-tagline{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;font-style:italic;font-weight:600;
+  color:#A67340;
+  margin-top:14px;position:relative;letter-spacing:1px;
+  text-shadow: 0 1px 8px rgba(80,40,10,.25);
+  display:inline-block;
+  padding: 8px 24px;
+  border-top: 1px solid rgba(166,115,64,.3);
+  border-bottom: 1px solid rgba(166,115,64,.3);
+}
+.header-tagline::before,.header-tagline::after{content:'✦';margin:0 10px;font-style:normal;font-size:13px;vertical-align:middle;color:#A67340;opacity:1}
+
+/* ── TABS ── */
+.tabs{display:flex;background:#C9905A;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:1;min-width:110px;padding:13px 14px;text-align:center;cursor:pointer;
+  font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--mogno-pale);border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;
+}
+.tab:hover{color:var(--white);background:rgba(255,255,255,.07)}
+.tab.active{color:var(--white);border-bottom-color:var(--gold-light);background:rgba(255,255,255,.12)}
+
+/* ── PANELS ── */
+.panel{display:none;padding:18px 15px 50px;max-width:860px;margin:0 auto}
+.panel.active{display:block}
+
+/* ── CARD ── */
+.card{
+  background:var(--white);border-radius:14px;padding:18px 18px 20px;
+  margin-bottom:14px;border:1px solid var(--cream-deep);
+  box-shadow:0 2px 14px rgba(90,56,37,.07);
+}
+.card-title{
+  font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;
+  color:var(--mogno);margin-bottom:14px;display:flex;align-items:center;gap:9px;
+}
+.ctag{
+  background:var(--mogno);color:var(--white);border-radius:7px;
+  width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+  font-size:13px;flex-shrink:0;
+}
+
+/* ── FORM ── */
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
+@media(max-width:560px){.fg2,.fg3{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--mogno-light)}
+.field input,.field select{
+  background:var(--cream);border:1.5px solid var(--cream-deep);border-radius:8px;
+  padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);
+  transition:border-color .2s;width:100%;
+}
+.field input:focus,.field select:focus{outline:none;border-color:var(--mogno-light);background:var(--white)}
+.field input[type=number]::-webkit-inner-spin-button{opacity:.4}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--mogno);color:var(--white);border:none;border-radius:9px;
+  padding:10px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;transition:background .2s;
+}
+.btn:hover{background:var(--mogno-mid)}
+.btn-outline{
+  background:transparent;border:1.5px solid var(--cream-deep);color:var(--mogno-mid);
+  border-radius:8px;padding:6px 13px;font-family:'DM Sans',sans-serif;
+  font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;
+}
+.btn-outline:hover{border-color:var(--mogno-light);color:var(--mogno)}
+.btn-danger{background:transparent;border:none;color:#c0392b;font-size:18px;cursor:pointer;line-height:1;padding:0 4px}
+
+/* ── PATIENT LIST ── */
+.patient-row{
+  display:grid;grid-template-columns:1fr auto auto;align-items:center;
+  gap:10px;padding:10px 12px;background:var(--cream);border-radius:9px;
+  border:1px solid var(--cream-deep);margin-bottom:7px;
+}
+.patient-row .pr-area{font-size:13px;font-weight:500;color:var(--mogno)}
+.patient-row .pr-shots{font-size:11px;color:var(--mogno-light);margin-top:2px}
+.patient-row .pr-price{font-size:13px;font-weight:600;color:var(--text)}
+.patient-empty{
+  text-align:center;padding:22px;color:var(--mogno-pale);
+  font-size:13px;font-style:italic;border:1.5px dashed var(--cream-deep);
+  border-radius:9px;margin-bottom:10px;
+}
+
+/* ── SHOTS SUMMARY ── */
+.shots-bar{
+  background:var(--mogno);border-radius:10px;padding:14px 16px;
+  display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-bottom:12px;
+}
+.shots-item{text-align:center}
+.shots-item .si-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--mogno-pale);margin-bottom:3px}
+.shots-item .si-value{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--white)}
+.shots-item .si-rate{font-size:11px;color:var(--gold-light);margin-top:1px}
+.shots-sep{width:1px;height:40px;background:rgba(255,255,255,.15);align-self:center}
+
+/* ── SCENARIOS ── */
+.scenarios{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+@media(max-width:500px){.scenarios{grid-template-columns:1fr}}
+.scenario{border-radius:11px;padding:14px 14px 12px;border:1.5px solid var(--cream-deep)}
+.scenario.sc-min{background:var(--parchment)}
+.scenario.sc-med{background:var(--mogno);border-color:var(--mogno)}
+.scenario.sc-max{background:var(--cream-mid)}
+.sc-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.scenario.sc-min .sc-label{color:var(--mogno-light)}
+.scenario.sc-med .sc-label{color:var(--mogno-pale)}
+.scenario.sc-max .sc-label{color:var(--mogno-mid)}
+.sc-price{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;margin-bottom:3px}
+.scenario.sc-min .sc-price{color:var(--mogno)}
+.scenario.sc-med .sc-price{color:var(--white)}
+.scenario.sc-max .sc-price{color:var(--mogno)}
+.sc-price-label{font-size:10px;margin-bottom:8px}
+.scenario.sc-min .sc-price-label{color:var(--mogno-light)}
+.scenario.sc-med .sc-price-label{color:var(--mogno-pale)}
+.scenario.sc-max .sc-price-label{color:var(--mogno-light)}
+.sc-divider{border:none;border-top:1px solid rgba(0,0,0,.08);margin:8px 0}
+.scenario.sc-med .sc-divider{border-top-color:rgba(255,255,255,.2)}
+.sc-profit{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:700}
+.scenario.sc-min .sc-profit{color:var(--green)}
+.scenario.sc-med .sc-profit{color:var(--gold-light)}
+.scenario.sc-max .sc-profit{color:var(--green)}
+.sc-profit-label{font-size:10px;margin-top:2px}
+.scenario.sc-min .sc-profit-label{color:var(--mogno-light)}
+.scenario.sc-med .sc-profit-label{color:var(--mogno-pale)}
+.scenario.sc-max .sc-profit-label{color:var(--mogno-light)}
+
+/* ── TIP BOX ── */
+.tip{
+  background:linear-gradient(135deg,#fffbf5,#fef6ea);
+  border-left:3px solid var(--gold);border-radius:0 8px 8px 0;
+  padding:11px 14px;font-size:13px;color:var(--mogno);line-height:1.55;margin-top:10px;
+}
+.tip.tip-green{background:var(--green-light);border-left-color:var(--green)}
+.tip strong{font-weight:600}
+
+/* ── APLICADORA ── */
+.aplic-toggle{
+  display:flex;align-items:center;gap:10px;cursor:pointer;
+  padding:11px 14px;background:var(--cream);border:1.5px dashed var(--cream-deep);
+  border-radius:9px;margin-bottom:13px;transition:border-color .2s;
+}
+.aplic-toggle:hover{border-color:var(--mogno-light)}
+.aplic-toggle input[type=checkbox]{accent-color:var(--mogno);width:15px;height:15px}
+.aplic-toggle span{font-size:13px;color:var(--mogno-mid);font-weight:500}
+.curso-box{
+  background:linear-gradient(135deg,var(--mogno),var(--mogno-mid));
+  border-radius:10px;padding:15px;color:var(--white);font-size:13px;line-height:1.55;
+}
+.curso-box strong{color:var(--gold-light)}
+.curso-box .ct{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mogno-pale);margin-bottom:5px}
+
+/* ── CO2 PACKAGES ── */
+.co2-pkgs{display:flex;flex-direction:column;gap:8px}
+.co2-pkg{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--cream);border:1.5px solid var(--cream-deep);border-radius:9px;
+  padding:12px 16px;cursor:pointer;transition:all .2s;
+}
+.co2-pkg:hover{border-color:var(--mogno-light)}
+.co2-pkg.selected{background:var(--mogno);border-color:var(--mogno);color:var(--white)}
+.co2-pkg .pklabel{font-size:14px;font-weight:500}
+.co2-pkg .pksub{font-size:11px;color:var(--mogno-light);margin-top:2px}
+.co2-pkg.selected .pksub{color:var(--mogno-pale)}
+.co2-pkg .pkprice{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--mogno)}
+.co2-pkg.selected .pkprice{color:var(--gold-light)}
+
+/* ── RATE CHIPS ── */
+.rate-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:13px}
+.rchip{
+  padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;
+  background:var(--cream-mid);color:var(--mogno-mid);border:1.5px solid var(--cream-deep);transition:all .2s;
+}
+.rchip.active{background:var(--mogno);color:var(--white);border-color:var(--mogno)}
+
+hr.div{border:none;border-top:1px solid var(--cream-deep);margin:15px 0}
+.section-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mogno-pale);margin-bottom:9px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo-row">
+  
+  </div>
+  <div class="header-name">CALCULADORA ESTRATÉGICA</div>
+  <div class="header-sub">Lee Locações · Planejamento de Rentabilidade</div>
+  <div class="header-tagline">Quem se planeja, lucra mais</div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('uf3')">Ultraformer III + Pixie</div>
+  <div class="tab" onclick="switchTab('mpt')">Ultraformer MPT</div>
+  <div class="tab" onclick="switchTab('co2')">CO₂ Youlaser</div>
+</div>
+
+<!-- ══════════════ ULTRAFORMER III + PIXIE ══════════════ -->
+<div id="panel-uf3" class="panel active">
+
+  <!-- 1. ADICIONAR PACIENTE -->
+  <div class="card">
+    <div class="card-title"><span class="ctag">＋</span>Planejar Atendimentos</div>
+
+    <div class="fg2" style="margin-bottom:11px">
+      <div class="field">
+        <label>Área de tratamento</label>
+        <select id="uf3-area-add">
+          <option value="0">Full face + papada</option>
+          <option value="1">Pálpebra superior</option>
+          <option value="2">Pálpebra inferior</option>
+          <option value="3">"C" Lifting</option>
+          <option value="4">Terço inferior</option>
+          <option value="5">Papada c/ gordura</option>
+          <option value="6">Papada s/ gordura</option>
+          <option value="7">Pescoço</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Cenário de preço</label>
+        <select id="uf3-price-mode">
+          <option value="med">Médio (sugerido)</option>
+          <option value="min">Conservador (mínimo)</option>
+          <option value="max">Otimista (máximo)</option>
+          <option value="custom">Personalizado</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="uf3-custom-price-row" style="display:none;margin-bottom:11px">
+      <div class="field">
+        <label>Preço personalizado (R$)</label>
+        <input type="number" id="uf3-custom-price" value="0" min="0">
+      </div>
+    </div>
+
+    <button class="btn" onclick="uf3AddPatient()">＋ Adicionar paciente</button>
+
+    <hr class="div">
+
+    <!-- LIST -->
+    <div class="section-label">Pacientes planejados</div>
+    <div id="uf3-list"><div class="patient-empty">Nenhum paciente adicionado ainda. Use o formulário acima para começar a planejar.</div></div>
+  </div>
+
+  <!-- 2. DISPAROS ACUMULADOS -->
+  <div class="card" id="uf3-shots-card" style="display:none">
+    <div class="card-title"><span class="ctag">⚡</span>Disparos do Dia</div>
+
+    <div class="shots-bar" id="uf3-shots-bar"></div>
+
+    <!-- Rate chips -->
+    <div class="section-label" style="margin-top:4px">Faixa de preço dos disparos micro</div>
+    <div class="rate-row">
+      <span class="rchip" id="uf3-chip1">R$2,30 · até 1.000</span>
+      <span class="rchip" id="uf3-chip2">R$2,00 · 1.001 a 3.000</span>
+      <span class="rchip" id="uf3-chip3">R$1,90 · acima de 3.000</span>
+    </div>
+
+    <!-- Pixie aluguel -->
+    <div id="uf3-pixie-tip" class="tip" style="display:none"></div>
+
+    <!-- Shots tip -->
+    <div id="uf3-shots-tip" class="tip" style="display:none;margin-top:8px"></div>
+  </div>
+
+  <!-- 3. CENÁRIOS DE RENTABILIDADE -->
+  <div class="card" id="uf3-result-card" style="display:none">
+    <div class="card-title"><span class="ctag">💰</span>Cenários de Rentabilidade</div>
+    <p style="font-size:12px;color:var(--mogno-light);margin-bottom:13px">Calculado com base nos pacientes planejados e disparos acumulados do dia.</p>
+
+    <div class="scenarios" id="uf3-scenarios"></div>
+
+    <div id="uf3-time-summary" style="font-size:12px;color:var(--mogno-light);margin-top:2px;line-height:1.6"></div>
+
+    <hr class="div">
+
+    <!-- APLICADORA -->
+    <label class="aplic-toggle">
+      <input type="checkbox" id="uf3-aplic-check" onchange="uf3Render()">
+      <span>➕ Incluir custo da aplicadora</span>
+    </label>
+    <div id="uf3-aplic-section" style="display:none">
+      <div class="fg3" style="margin-bottom:11px">
+        <div class="field">
+          <label>Horas contratadas</label>
+          <select id="uf3-aplic-horas" onchange="uf3Render()">
+            <option value="480">4 horas — R$480</option>
+            <option value="650">6 horas — R$650</option>
+            <option value="850">8 horas — R$850</option>
+            <option value="990">12 horas — R$990</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Lucro mín. c/ aplicadora</label>
+          <div id="uf3-aplic-min" style="padding:9px 0;font-size:15px;font-weight:600;color:var(--green)">—</div>
+        </div>
+        <div class="field">
+          <label>Lucro méd. c/ aplicadora</label>
+          <div id="uf3-aplic-med" style="padding:9px 0;font-size:15px;font-weight:600;color:var(--green)">—</div>
+        </div>
+      </div>
+      <div id="uf3-curso-box" class="curso-box" style="display:none"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════ MPT ══════════════ -->
+<div id="panel-mpt" class="panel">
+
+  <div class="card">
+    <div class="card-title"><span class="ctag">＋</span>Planejar Atendimentos</div>
+
+    <div class="fg2" style="margin-bottom:11px">
+      <div class="field">
+        <label>Área de tratamento</label>
+        <select id="mpt-area-add">
+          <option value="0">Full face + papada</option>
+          <option value="1">Pálpebra superior</option>
+          <option value="2">Pálpebra inferior</option>
+          <option value="3">"C" Lifting</option>
+          <option value="4">Terço inferior</option>
+          <option value="5">Papada c/ gordura</option>
+          <option value="6">Papada s/ gordura</option>
+          <option value="7">Pescoço</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Cenário de preço</label>
+        <select id="mpt-price-mode">
+          <option value="med">Médio (sugerido)</option>
+          <option value="min">Conservador (mínimo)</option>
+          <option value="max">Otimista (máximo)</option>
+          <option value="custom">Personalizado</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="mpt-custom-price-row" style="display:none;margin-bottom:11px">
+      <div class="field">
+        <label>Preço personalizado (R$)</label>
+        <input type="number" id="mpt-custom-price" value="0" min="0">
+      </div>
+    </div>
+
+    <button class="btn" onclick="mptAddPatient()">＋ Adicionar paciente</button>
+
+    <hr class="div">
+
+    <div class="section-label">Pacientes planejados</div>
+    <div id="mpt-list"><div class="patient-empty">Nenhum paciente adicionado ainda. Use o formulário acima para começar a planejar.</div></div>
+  </div>
+
+  <div class="card" id="mpt-shots-card" style="display:none">
+    <div class="card-title"><span class="ctag">⚡</span>Disparos do Dia</div>
+    <div class="shots-bar" id="mpt-shots-bar"></div>
+    <div class="section-label" style="margin-top:8px">Faixa de preço dos disparos</div>
+    <div class="rate-row">
+      <span class="rchip" id="mpt-chip1">R$2,30 · até 1.500</span>
+      <span class="rchip" id="mpt-chip2">R$2,10 · 1.501 a 3.000</span>
+      <span class="rchip" id="mpt-chip3">R$1,99 · acima de 3.000</span>
+    </div>
+    <div id="mpt-shots-tip" class="tip" style="display:none"></div>
+  </div>
+
+  <div class="card" id="mpt-result-card" style="display:none">
+    <div class="card-title"><span class="ctag">💰</span>Cenários de Rentabilidade</div>
+    <p style="font-size:12px;color:var(--mogno-light);margin-bottom:13px">Calculado com base nos pacientes planejados e disparos acumulados do dia.</p>
+    <div class="scenarios" id="mpt-scenarios"></div>
+    <div id="mpt-time-summary" style="font-size:12px;color:var(--mogno-light);margin-top:2px;line-height:1.6"></div>
+
+    <hr class="div">
+
+    <label class="aplic-toggle">
+      <input type="checkbox" id="mpt-aplic-check" onchange="mptRender()">
+      <span>➕ Incluir custo da aplicadora</span>
+    </label>
+    <div id="mpt-aplic-section" style="display:none">
+      <div class="fg3" style="margin-bottom:11px">
+        <div class="field">
+          <label>Horas contratadas</label>
+          <select id="mpt-aplic-horas" onchange="mptRender()">
+            <option value="480">4 horas — R$480</option>
+            <option value="650">6 horas — R$650</option>
+            <option value="850">8 horas — R$850</option>
+            <option value="990">12 horas — R$990</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Lucro mín. c/ aplicadora</label>
+          <div id="mpt-aplic-min" style="padding:9px 0;font-size:15px;font-weight:600;color:var(--green)">—</div>
+        </div>
+        <div class="field">
+          <label>Lucro méd. c/ aplicadora</label>
+          <div id="mpt-aplic-med" style="padding:9px 0;font-size:15px;font-weight:600;color:var(--green)">—</div>
+        </div>
+      </div>
+      <div id="mpt-curso-box" class="curso-box" style="display:none"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════ CO2 ══════════════ -->
+<div id="panel-co2" class="panel">
+
+  <div class="card">
+    <div class="card-title"><span class="ctag">🔬</span>Pacote de Locação</div>
+    <div class="co2-pkgs">
+      <div class="co2-pkg" id="co2-p4" onclick="co2Select(4,1600)">
+        <div><div class="pklabel">4 horas</div><div class="pksub">até 6 sessões de 40 min</div></div>
+        <div class="pkprice">R$1.600</div>
+      </div>
+      <div class="co2-pkg" id="co2-p6" onclick="co2Select(6,2000)">
+        <div><div class="pklabel">6 horas</div><div class="pksub">até 9 sessões de 40 min</div></div>
+        <div class="pkprice">R$2.000</div>
+      </div>
+      <div class="co2-pkg selected" id="co2-p8" onclick="co2Select(8,2500)">
+        <div><div class="pklabel">Diária — 8 horas ou mais</div><div class="pksub">até 12 sessões de 40 min</div></div>
+        <div class="pkprice">R$2.500</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="ctag">💲</span>Configuração</div>
+    <div class="fg2">
+      <div class="field">
+        <label>Valor cobrado por sessão (R$)</label>
+        <input type="number" id="co2-valor" value="1800" min="0" oninput="co2Calc()">
+      </div>
+      <div class="field">
+        <label>Sessões realizadas (planejadas)</label>
+        <input type="number" id="co2-sessoes" value="1" min="1" oninput="co2Calc()">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="ctag">💰</span>Resultado</div>
+    <div class="scenarios" id="co2-scenarios" style="grid-template-columns:1fr 1fr"></div>
+    <div id="co2-tip" class="tip tip-green" style="display:none;margin-top:12px"></div>
+    <hr class="div">
+
+    <label class="aplic-toggle">
+      <input type="checkbox" id="co2-aplic-check" onchange="co2Calc()">
+      <span>➕ Incluir custo da aplicadora</span>
+    </label>
+    <div id="co2-aplic-section" style="display:none">
+      <div class="fg3" style="margin-bottom:11px">
+        <div class="field">
+          <label>Horas contratadas</label>
+          <select id="co2-aplic-horas" onchange="co2Calc()">
+            <option value="480">4 horas — R$480</option>
+            <option value="650">6 horas — R$650</option>
+            <option value="850">8 horas — R$850</option>
+            <option value="990">12 horas — R$990</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Receita total</label>
+          <div id="co2-receita" style="padding:9px 0;font-size:15px;font-weight:600;color:var(--mogno)">—</div>
+        </div>
+        <div class="field">
+          <label>Lucro c/ aplicadora</label>
+          <div id="co2-lucro-aplic" style="padding:9px 0;font-size:15px;font-weight:600;color:var(--green)">—</div>
+        </div>
+      </div>
+      <div id="co2-curso-box" class="curso-box" style="display:none"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────
+const UF3 = [
+  {name:'Full face + papada', micro:380, macro:0, pixie:4000, tempo:'1h 30min', pMin:2320, pMed:2710, pMax:3290},
+  {name:'Pálpebra superior',  micro:80,  macro:0, pixie:0,    tempo:'30 min',   pMin:320,  pMed:360,  pMax:440},
+  {name:'Pálpebra inferior',  micro:50,  macro:0, pixie:1000, tempo:'30 min',   pMin:400,  pMed:475,  pMax:575},
+  {name:'"C" Lifting',        micro:60,  macro:0, pixie:0,    tempo:'30 min',   pMin:240,  pMed:270,  pMax:330},
+  {name:'Terço inferior',     micro:150, macro:0, pixie:1800, tempo:'30 min',   pMin:960,  pMed:1125, pMax:1365},
+  {name:'Papada c/ gordura',  micro:150, macro:0, pixie:1200, tempo:'30 min',   pMin:840,  pMed:975,  pMax:1185},
+  {name:'Papada s/ gordura',  micro:100, macro:0, pixie:1200, tempo:'30 min',   pMin:640,  pMed:750,  pMax:910},
+  {name:'Pescoço',            micro:180, macro:0, pixie:2200, tempo:'40 min',   pMin:1160, pMed:1360, pMax:1650},
+];
+
+const MPT = [
+  {name:'Full face + papada', linear:630, booster:300, tempo:'1h 30min', pMin:3720, pMed:4650, pMax:5580},
+  {name:'Pálpebra superior',  linear:80,  booster:0,   tempo:'30 min',   pMin:320,  pMed:400,  pMax:480},
+  {name:'Pálpebra inferior',  linear:50,  booster:50,  tempo:'30 min',   pMin:400,  pMed:500,  pMax:600},
+  {name:'"C" Lifting',        linear:60,  booster:0,   tempo:'30 min',   pMin:240,  pMed:300,  pMax:360},
+  {name:'Terço inferior',     linear:300, booster:150, tempo:'30 min',   pMin:1800, pMed:2250, pMax:2700},
+  {name:'Papada c/ gordura',  linear:260, booster:100, tempo:'30 min',   pMin:1440, pMed:1800, pMax:2160},
+  {name:'Papada s/ gordura',  linear:200, booster:100, tempo:'30 min',   pMin:1200, pMed:1500, pMax:1800},
+  {name:'Pescoço',            linear:180, booster:180, tempo:'40 min',   pMin:1440, pMed:1800, pMax:2160},
+];
+
+const CURSO = 1590;
+const MACRO_RATE = 1.00;
+const PIXIE_RATE = 0.10;
+
+let uf3Patients = [];
+let mptPatients = [];
+let co2State = {horas:8, custo:2500};
+
+// ── HELPERS ──────────────────────────────────────────
+function R(v){return 'R$\u00a0'+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+function uf3MicroRate(q){return q<=1000?2.30:q<=3000?2.00:1.90}
+function mptRate(q){return q<=1500?2.30:q<=3000?2.10:1.99}
+
+function minutesFromTempo(t){
+  if(t.includes('1h 30')) return 90;
+  if(t.includes('40')) return 40;
+  return 30;
+}
+
+function colorize(el,v){el.style.color=v>=0?'var(--green)':'#c0392b'}
+
+// ── TABS ─────────────────────────────────────────────
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    t.classList.toggle('active',['uf3','mpt','co2'][i]===id);
+  });
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+}
+
+// ── PRICE MODE ───────────────────────────────────────
+document.getElementById('uf3-price-mode').addEventListener('change',function(){
+  document.getElementById('uf3-custom-price-row').style.display=this.value==='custom'?'block':'none';
+});
+document.getElementById('mpt-price-mode').addEventListener('change',function(){
+  document.getElementById('mpt-custom-price-row').style.display=this.value==='custom'?'block':'none';
+});
+
+// ── UF3 ADD ──────────────────────────────────────────
+function uf3AddPatient(){
+  const aIdx = parseInt(document.getElementById('uf3-area-add').value);
+  const mode = document.getElementById('uf3-price-mode').value;
+  const area = UF3[aIdx];
+  let price = mode==='min'?area.pMin : mode==='max'?area.pMax : mode==='custom'
+    ? (parseFloat(document.getElementById('uf3-custom-price').value)||0) : area.pMed;
+  uf3Patients.push({aIdx, price, mode});
+  uf3Render();
+}
+
+function uf3Remove(i){uf3Patients.splice(i,1);uf3Render()}
+
+function uf3Render(){
+  // list
+  const listEl = document.getElementById('uf3-list');
+  if(uf3Patients.length===0){
+    listEl.innerHTML='<div class="patient-empty">Nenhum paciente adicionado ainda. Use o formulário acima para começar a planejar.</div>';
+    document.getElementById('uf3-shots-card').style.display='none';
+    document.getElementById('uf3-result-card').style.display='none';
+    return;
+  }
+
+  listEl.innerHTML='';
+  let totalMicro=0,totalMacro=0,totalPixie=0,totalMin=0,totalMed=0,totalMax=0,totalMin_r=0,totalMed_r=0,totalMax_r=0,totalTime=0;
+
+  uf3Patients.forEach((p,i)=>{
+    const a=UF3[p.aIdx];
+    totalMicro+=a.micro; totalMacro+=a.macro; totalPixie+=a.pixie;
+    totalMin_r+=a.pMin; totalMed_r+=a.pMed; totalMax_r+=a.pMax;
+    totalTime+=minutesFromTempo(a.tempo);
+
+    const row=document.createElement('div');
+    row.className='patient-row';
+    row.innerHTML=`
+      <div>
+        <div class="pr-area">${a.name}</div>
+        <div class="pr-shots">Micro: ${a.micro} · Macro: ${a.macro||0} · Pixie: ${a.pixie||0} · ⏱ ${a.tempo}</div>
+      </div>
+      <div class="pr-price">${R(p.price)}</div>
+      <button class="btn-danger" onclick="uf3Remove(${i})">✕</button>
+    `;
+    listEl.appendChild(row);
+    totalMin+=a.pMin; totalMed+=a.pMed; totalMax+=a.pMax;
+  });
+
+  // shots
+  const microRate=uf3MicroRate(totalMicro);
+  const pixieAluguel=totalPixie>0&&totalPixie<10000?500:0;
+  const custMicro=totalMicro*microRate;
+  const custMacro=totalMacro*MACRO_RATE;
+  const custPixie=totalPixie*PIXIE_RATE+pixieAluguel;
+  const custoTotal=custMicro+custMacro+custPixie;
+
+  document.getElementById('uf3-shots-card').style.display='block';
+  document.getElementById('uf3-shots-bar').innerHTML=`
+    <div class="shots-item"><div class="si-label">Micro (ULT III)</div><div class="si-value">${totalMicro.toLocaleString('pt-BR')}</div><div class="si-rate">R$${microRate.toFixed(2).replace('.',',')}/disparo</div></div>
+    <div class="shots-sep"></div>
+    <div class="shots-item"><div class="si-label">Macro (ULT III)</div><div class="si-value">${totalMacro.toLocaleString('pt-BR')}</div><div class="si-rate">R$1,00/disparo</div></div>
+    <div class="shots-sep"></div>
+    <div class="shots-item"><div class="si-label">Pixie</div><div class="si-value">${totalPixie.toLocaleString('pt-BR')}</div><div class="si-rate">${totalPixie>=10000?'Isento de aluguel ✓':'Aluguel: '+R(pixieAluguel)}</div></div>
+    <div class="shots-sep"></div>
+    <div class="shots-item"><div class="si-label">Custo Total</div><div class="si-value">${R(custoTotal)}</div><div class="si-rate">${uf3Patients.length} paciente${uf3Patients.length>1?'s':''}</div></div>
+  `;
+
+  // chips
+  ['uf3-chip1','uf3-chip2','uf3-chip3'].forEach(c=>document.getElementById(c).classList.remove('active'));
+  document.getElementById(totalMicro<=1000?'uf3-chip1':totalMicro<=3000?'uf3-chip2':'uf3-chip3').classList.add('active');
+
+  // pixie tip
+  const pixTip=document.getElementById('uf3-pixie-tip');
+  if(totalPixie>0&&totalPixie<10000){
+    const f=10000-totalPixie;
+    pixTip.style.display='block';
+    pixTip.innerHTML=`💡 Faltam <strong>${f.toLocaleString('pt-BR')} disparos do Pixie</strong> para você atingir 10.000 e <strong>economizar R$500,00</strong> do aluguel. Que tal encaixar mais uma área?`;
+  } else pixTip.style.display='none';
+
+  // shots tip
+  const sTip=document.getElementById('uf3-shots-tip');
+  let sMsg='';
+  if(totalMicro>0&&totalMicro<1000){const f=1000-totalMicro;const e=f*(2.30-2.00);sMsg=`💡 Faltam <strong>${f} disparos micro</strong> para o valor cair para R$2,00/disparo — economia de <strong>${R(e)}</strong>. Adicione uma pálpebra ou "C" Lifting!`}
+  else if(totalMicro>1000&&totalMicro<3000){const f=3000-totalMicro;const e=f*(2.00-1.90);sMsg=`💡 Faltam <strong>${f} disparos micro</strong> para o valor cair para R$1,90/disparo — economia de <strong>${R(e)}</strong>. Adicione mais uma região!`}
+  sTip.style.display=sMsg?'block':'none';
+  sTip.innerHTML=sMsg;
+
+  // scenarios
+  document.getElementById('uf3-result-card').style.display='block';
+  const lucMin=totalMin-custoTotal;
+  const lucMed=totalMed-custoTotal;
+  const lucMax=totalMax-custoTotal;
+
+  const lc=(v)=>v>=0?'var(--green)':'#c0392b';
+
+  document.getElementById('uf3-scenarios').innerHTML=`
+    <div class="scenario sc-min">
+      <div class="sc-label">Conservador</div>
+      <div class="sc-price">${R(totalMin)}</div><div class="sc-price-label">cobrado dos pacientes</div>
+      <hr class="sc-divider">
+      <div class="sc-profit" style="color:${lc(lucMin)}">${R(lucMin)}</div>
+      <div class="sc-profit-label">lucro estimado</div>
+    </div>
+    <div class="scenario sc-med">
+      <div class="sc-label">⭐ Recomendado</div>
+      <div class="sc-price">${R(totalMed)}</div><div class="sc-price-label">cobrado dos pacientes</div>
+      <hr class="sc-divider">
+      <div class="sc-profit" style="color:${lucMed>=0?'var(--gold-light)':'#e74c3c'}">${R(lucMed)}</div>
+      <div class="sc-profit-label">lucro estimado</div>
+    </div>
+    <div class="scenario sc-max">
+      <div class="sc-label">Otimista</div>
+      <div class="sc-price">${R(totalMax)}</div><div class="sc-price-label">cobrado dos pacientes</div>
+      <hr class="sc-divider">
+      <div class="sc-profit" style="color:${lc(lucMax)}">${R(lucMax)}</div>
+      <div class="sc-profit-label">lucro estimado</div>
+    </div>
+  `;
+
+  const h=Math.floor(totalTime/60), m=totalTime%60;
+  document.getElementById('uf3-time-summary').innerHTML=`⏱ Tempo total estimado: <strong>${h>0?h+'h ':''} ${m>0?m+'min':''}</strong> &nbsp;·&nbsp; ${uf3Patients.length} paciente${uf3Patients.length>1?'s':''}`;
+
+  // aplicadora
+  const aplicCheck=document.getElementById('uf3-aplic-check').checked;
+  document.getElementById('uf3-aplic-section').style.display=aplicCheck?'block':'none';
+  if(aplicCheck){
+    const aplicCusto=parseInt(document.getElementById('uf3-aplic-horas').value);
+    const lmin=lucMin-aplicCusto, lmed=lucMed-aplicCusto;
+    const elMin=document.getElementById('uf3-aplic-min');
+    const elMed=document.getElementById('uf3-aplic-med');
+    elMin.textContent=R(lmin); colorize(elMin,lmin);
+    elMed.textContent=R(lmed); colorize(elMed,lmed);
+
+    const avgPrice=totalMed/uf3Patients.length;
+    const pacs=Math.ceil(CURSO/avgPrice);
+    const cb=document.getElementById('uf3-curso-box');
+    cb.style.display='block';
+    cb.innerHTML=`<div class="ct">💡 Pense nisso</div>Com o retorno de <strong>${pacs} paciente${pacs>1?'s':''}</strong> no cenário médio você já recupera o investimento no curso de Ultraformer III (${R(CURSO)}) — elimine a dependência de agenda da aplicadora para você ou alguém da sua equipe!`;
+  }
+}
+
+// ── MPT ADD ──────────────────────────────────────────
+function mptAddPatient(){
+  const aIdx=parseInt(document.getElementById('mpt-area-add').value);
+  const mode=document.getElementById('mpt-price-mode').value;
+  const area=MPT[aIdx];
+  let price=mode==='min'?area.pMin:mode==='max'?area.pMax:mode==='custom'
+    ?(parseFloat(document.getElementById('mpt-custom-price').value)||0):area.pMed;
+  mptPatients.push({aIdx,price,mode});
+  mptRender();
+}
+
+function mptRemove(i){mptPatients.splice(i,1);mptRender()}
+
+function mptRender(){
+  const listEl=document.getElementById('mpt-list');
+  if(mptPatients.length===0){
+    listEl.innerHTML='<div class="patient-empty">Nenhum paciente adicionado ainda. Use o formulário acima para começar a planejar.</div>';
+    document.getElementById('mpt-shots-card').style.display='none';
+    document.getElementById('mpt-result-card').style.display='none';
+    return;
+  }
+
+  listEl.innerHTML='';
+  let totLinear=0,totBooster=0,totMin=0,totMed=0,totMax=0,totTime=0;
+
+  mptPatients.forEach((p,i)=>{
+    const a=MPT[p.aIdx];
+    totLinear+=a.linear; totBooster+=a.booster; totTime+=minutesFromTempo(a.tempo);
+    totMin+=a.pMin; totMed+=a.pMed; totMax+=a.pMax;
+
+    const row=document.createElement('div');
+    row.className='patient-row';
+    row.innerHTML=`
+      <div>
+        <div class="pr-area">${a.name}</div>
+        <div class="pr-shots">Linear: ${a.linear} · Booster: ${a.booster} · ⏱ ${a.tempo}</div>
+      </div>
+      <div class="pr-price">${R(p.price)}</div>
+      <button class="btn-danger" onclick="mptRemove(${i})">✕</button>
+    `;
+    listEl.appendChild(row);
+  });
+
+  const totDisp=totLinear+totBooster;
+  const rate=mptRate(totDisp);
+  const custo=totDisp*rate;
+
+  document.getElementById('mpt-shots-card').style.display='block';
+  document.getElementById('mpt-shots-bar').innerHTML=`
+    <div class="shots-item"><div class="si-label">Linear</div><div class="si-value">${totLinear.toLocaleString('pt-BR')}</div><div class="si-rate">incluso na taxa</div></div>
+    <div class="shots-sep"></div>
+    <div class="shots-item"><div class="si-label">Booster</div><div class="si-value">${totBooster.toLocaleString('pt-BR')}</div><div class="si-rate">incluso na taxa</div></div>
+    <div class="shots-sep"></div>
+    <div class="shots-item"><div class="si-label">Total disparos</div><div class="si-value">${totDisp.toLocaleString('pt-BR')}</div><div class="si-rate">R$${rate.toFixed(2).replace('.',',')}/disparo</div></div>
+    <div class="shots-sep"></div>
+    <div class="shots-item"><div class="si-label">Custo Total</div><div class="si-value">${R(custo)}</div><div class="si-rate">${mptPatients.length} paciente${mptPatients.length>1?'s':''}</div></div>
+  `;
+
+  ['mpt-chip1','mpt-chip2','mpt-chip3'].forEach(c=>document.getElementById(c).classList.remove('active'));
+  document.getElementById(totDisp<=1500?'mpt-chip1':totDisp<=3000?'mpt-chip2':'mpt-chip3').classList.add('active');
+
+  const sTip=document.getElementById('mpt-shots-tip');
+  let sMsg='';
+  if(totDisp>0&&totDisp<1500){const f=1500-totDisp;const e=f*(2.30-2.10);sMsg=`💡 Faltam <strong>${f} disparos</strong> para o valor cair para R$2,10/disparo — economia de <strong>${R(e)}</strong>. Encaixe mais uma área!`}
+  else if(totDisp>1500&&totDisp<3000){const f=3000-totDisp;const e=f*(2.10-1.99);sMsg=`💡 Faltam <strong>${f} disparos</strong> para o valor cair para R$1,99/disparo — economia de <strong>${R(e)}</strong>. Continue agendando!`}
+  sTip.style.display=sMsg?'block':'none';
+  sTip.innerHTML=sMsg;
+
+  document.getElementById('mpt-result-card').style.display='block';
+  const lucMin=totMin-custo, lucMed=totMed-custo, lucMax=totMax-custo;
+  const lc=(v)=>v>=0?'var(--green)':'#c0392b';
+
+  document.getElementById('mpt-scenarios').innerHTML=`
+    <div class="scenario sc-min">
+      <div class="sc-label">Conservador</div>
+      <div class="sc-price">${R(totMin)}</div><div class="sc-price-label">cobrado dos pacientes</div>
+      <hr class="sc-divider">
+      <div class="sc-profit" style="color:${lc(lucMin)}">${R(lucMin)}</div>
+      <div class="sc-profit-label">lucro estimado</div>
+    </div>
+    <div class="scenario sc-med">
+      <div class="sc-label">⭐ Recomendado</div>
+      <div class="sc-price">${R(totMed)}</div><div class="sc-price-label">cobrado dos pacientes</div>
+      <hr class="sc-divider">
+      <div class="sc-profit" style="color:${lucMed>=0?'var(--gold-light)':'#e74c3c'}">${R(lucMed)}</div>
+      <div class="sc-profit-label">lucro estimado</div>
+    </div>
+    <div class="scenario sc-max">
+      <div class="sc-label">Otimista</div>
+      <div class="sc-price">${R(totMax)}</div><div class="sc-price-label">cobrado dos pacientes</div>
+      <hr class="sc-divider">
+      <div class="sc-profit" style="color:${lc(lucMax)}">${R(lucMax)}</div>
+      <div class="sc-profit-label">lucro estimado</div>
+    </div>
+  `;
+
+  const h=Math.floor(totTime/60),m=totTime%60;
+  document.getElementById('mpt-time-summary').innerHTML=`⏱ Tempo total estimado: <strong>${h>0?h+'h ':''} ${m>0?m+'min':''}</strong> &nbsp;·&nbsp; ${mptPatients.length} paciente${mptPatients.length>1?'s':''}`;
+
+  const aplicCheck=document.getElementById('mpt-aplic-check').checked;
+  document.getElementById('mpt-aplic-section').style.display=aplicCheck?'block':'none';
+  if(aplicCheck){
+    const aplicCusto=parseInt(document.getElementById('mpt-aplic-horas').value);
+    const lmin=lucMin-aplicCusto,lmed=lucMed-aplicCusto;
+    const elMin=document.getElementById('mpt-aplic-min');
+    const elMed=document.getElementById('mpt-aplic-med');
+    elMin.textContent=R(lmin); colorize(elMin,lmin);
+    elMed.textContent=R(lmed); colorize(elMed,lmed);
+
+    const avgPrice=totMed/mptPatients.length;
+    const pacs=Math.ceil(CURSO/avgPrice);
+    const cb=document.getElementById('mpt-curso-box');
+    cb.style.display='block';
+    cb.innerHTML=`<div class="ct">💡 Pense nisso</div>Com o retorno de <strong>${pacs} paciente${pacs>1?'s':''}</strong> no cenário médio você já recupera o investimento no curso de MPT (${R(CURSO)}) — liberte-se da dependência de agenda e capacite sua equipe!`;
+  }
+}
+
+// ── CO2 ──────────────────────────────────────────────
+function co2Select(h,c){
+  co2State={horas:h,custo:c};
+  ['4','6','8'].forEach(x=>document.getElementById('co2-p'+x).classList.remove('selected'));
+  document.getElementById('co2-p'+h).classList.add('selected');
+  co2Calc();
+}
+
+function co2Calc(){
+  const {horas,custo}=co2State;
+  const valor=parseFloat(document.getElementById('co2-valor').value)||0;
+  const sessoes=parseInt(document.getElementById('co2-sessoes').value)||1;
+  const sessMax=Math.floor((horas*60)/40);
+  const receita=valor*sessoes;
+  const lucro=receita-custo;
+  const lc=v=>v>=0?'var(--green)':'#c0392b';
+
+  document.getElementById('co2-scenarios').innerHTML=`
+    <div class="scenario sc-min" style="background:var(--parchment)">
+      <div class="sc-label">Locação</div>
+      <div class="sc-price">${R(custo)}</div><div class="sc-price-label">${horas}h de uso</div>
+      <hr class="sc-divider">
+      <div class="sc-profit" style="color:var(--mogno-light);font-size:14px">até ${sessMax} sessões disponíveis</div>
+    </div>
+    <div class="scenario sc-med">
+      <div class="sc-label">⭐ Resultado (${sessoes} sessão${sessoes>1?'ões':''})</div>
+      <div class="sc-price">${R(receita)}</div><div class="sc-price-label">cobrado dos pacientes</div>
+      <hr class="sc-divider">
+      <div class="sc-profit" style="color:${lucro>=0?'var(--gold-light)':'#e74c3c'}">${R(lucro)}</div>
+      <div class="sc-profit-label">lucro líquido</div>
+    </div>
+  `;
+
+  const tipEl=document.getElementById('co2-tip');
+  if(sessoes<sessMax){
+    const f=sessMax-sessoes;
+    const extras=f*valor;
+    tipEl.style.display='block';
+    tipEl.innerHTML=`💡 Você ainda tem espaço para mais <strong>${f} sessão${f>1?'ões':''}</strong> neste pacote — isso representaria mais <strong>${R(extras)}</strong> de receita sem custo adicional de locação!`;
+  } else tipEl.style.display='none';
+
+  const aplicCheck=document.getElementById('co2-aplic-check').checked;
+  document.getElementById('co2-aplic-section').style.display=aplicCheck?'block':'none';
+  if(aplicCheck){
+    const aplicCusto=parseInt(document.getElementById('co2-aplic-horas').value);
+    const lucroA=lucro-aplicCusto;
+    const er=document.getElementById('co2-receita');
+    const ela=document.getElementById('co2-lucro-aplic');
+    er.textContent=R(receita);
+    ela.textContent=R(lucroA); colorize(ela,lucroA);
+
+    const pacs=valor>0?Math.ceil(CURSO/valor):0;
+    const cb=document.getElementById('co2-curso-box');
+    if(pacs>0){
+      cb.style.display='block';
+      cb.innerHTML=`<div class="ct">💡 Pense nisso</div>Com o valor de <strong>${pacs} sessão${pacs>1?'ões':''}</strong> você já recupera o investimento no curso de CO₂ (${R(CURSO)}) — e ganha total autonomia de agenda, para você ou para alguém da sua equipe!`;
+    } else cb.style.display='none';
+  }
+}
+
+// INIT
+co2Calc();
+</script>
+</body>
+</html>
